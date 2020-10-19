@@ -2,8 +2,6 @@ package com.ajithsolomon.ajiranet.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -18,17 +16,17 @@ public class Devices {
 	@Column(name = "device_type", nullable = false)
 	private String type;
 
-	@Column(name = "strength")
-	private String strength;
+	@Column(name = "value")
+	private String value;
 
 	public Devices() {
 	}
 
-	public Devices(String name, String type, String strength) {
+	public Devices(String name, String type, String value) {
 		super();
 		this.name = name;
 		this.type = type;
-		this.strength = strength;
+		this.value = value;
 	}
 
 	public String getName() {
@@ -47,12 +45,12 @@ public class Devices {
 		this.type = type;
 	}
 
-	public String getStrength() {
-		return strength;
+	public String getValue() {
+		return value;
 	}
 
-	public void setStrength(String strength) {
-		this.strength = strength;
+	public void setValue(String value) {
+		this.value = value;
 	}
 
 	@Override
@@ -60,8 +58,8 @@ public class Devices {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((strength == null) ? 0 : strength.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		result = prime * result + ((value == null) ? 0 : value.hashCode());
 		return result;
 	}
 
@@ -79,22 +77,22 @@ public class Devices {
 				return false;
 		} else if (!name.equals(other.name))
 			return false;
-		if (strength == null) {
-			if (other.strength != null)
-				return false;
-		} else if (!strength.equals(other.strength))
-			return false;
 		if (type == null) {
 			if (other.type != null)
 				return false;
 		} else if (!type.equals(other.type))
+			return false;
+		if (value == null) {
+			if (other.value != null)
+				return false;
+		} else if (!value.equals(other.value))
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "Devices [name=" + name + ", type=" + type + ", strength=" + strength + "]";
+		return "Devices [name=" + name + ", type=" + type + ", value=" + value + "]";
 	}
 
 }

@@ -7,5 +7,8 @@ import com.ajithsolomon.ajiranet.entity.Devices;
 
 public interface ResourceService {
 
-	public ResponseEntity<ResponseObject> createDevices(Devices device);
+	ResponseEntity<ResponseObject> createDevices(Devices device);
+	
+	ResponseEntity<ResponseObject> modifyStrength(String name, Devices device);
+	
 }

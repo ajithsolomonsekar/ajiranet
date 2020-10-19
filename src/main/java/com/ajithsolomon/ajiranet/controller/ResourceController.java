@@ -3,8 +3,7 @@ package com.ajithsolomon.ajiranet.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.Nullable;
-import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,12 +20,17 @@ public class ResourceController {
 	@Autowired
 	ResourceService resourceService;
 
-	@PostMapping(path = "")
-	public ResponseEntity<ResponseObject> createDevices(@RequestBody @Nullable Devices device) {
+	@PostMapping(path = "/devices")
+	public ResponseEntity<ResponseObject> createDevices(@RequestBody(required = false) Devices device) {
 		if (device == null) {
 			return new ResponseEntity<ResponseObject>(new ResponseObject("Invalid Command."), HttpStatus.BAD_REQUEST);
 		}
 		return resourceService.createDevices(device);
+	}
+
+	@PostMapping(path = "/devices/{name}/strength")
+	public ResponseEntity<ResponseObject> modifyStrength(@PathVariable String name, @RequestBody Devices device) {
+		return resourceService.modifyStrength(name, device);
 	}
 
 }
