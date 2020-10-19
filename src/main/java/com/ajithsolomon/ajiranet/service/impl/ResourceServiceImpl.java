@@ -20,18 +20,19 @@ public class ResourceServiceImpl implements ResourceService {
 	public ResponseEntity<ResponseObject> createDevices(Devices device) {
 		ResponseObject response = new ResponseObject();
 
-		if (deviceRepository.findById(device.getName()).isPresent()) {
-			response.setMsg("Device " + device.getName() + " already exists");
-			return new ResponseEntity<ResponseObject> (response, HttpStatus.BAD_REQUEST);
-		}
 		if (device.getType().equals(DeviceType.COMPUTER.getValue())
 				|| device.getType().equals(DeviceType.REPEATER.getValue())) {
+			if (deviceRepository.findById(device.getName()).isPresent()) {
+				response.setMsg("Device '" + device.getName() + "' already exists");
+				return new ResponseEntity<ResponseObject>(response, HttpStatus.BAD_REQUEST);
+			}
 			deviceRepository.save(device);
 			response.setMsg("Successfully added " + device.getName());
-			return new ResponseEntity<ResponseObject> (response, HttpStatus.OK);
+			return new ResponseEntity<ResponseObject>(response, HttpStatus.OK);
+		} else {
+			response.setMsg("type '" + device.getType() + "' is not supported");
+			return new ResponseEntity<ResponseObject>(response, HttpStatus.BAD_REQUEST);
 		}
-		response.setMsg("type " + device.getType() + " is not supported");
-		return new ResponseEntity<ResponseObject> (response, HttpStatus.BAD_REQUEST);
 	}
 
 }
