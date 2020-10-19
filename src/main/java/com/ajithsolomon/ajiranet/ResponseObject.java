@@ -14,6 +14,11 @@ public class ResponseObject {
 	@JsonInclude(Include.NON_NULL)
 	private String value;
 
+	public ResponseObject(String msg) {
+		super();
+		this.msg = msg;
+	}
+
 	public ResponseObject(String msg, String value) {
 		super();
 		this.msg = msg;
@@ -43,5 +48,5 @@ public class ResponseObject {
 	public String toString() {
 		return "[msg=" + msg + ", value=" + value + "]";
 	}
-	
+
 }

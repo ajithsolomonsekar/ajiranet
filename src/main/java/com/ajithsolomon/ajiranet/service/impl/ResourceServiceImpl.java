@@ -1,6 +1,8 @@
 package com.ajithsolomon.ajiranet.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.ajithsolomon.ajiranet.ResponseObject;
@@ -15,17 +17,21 @@ public class ResourceServiceImpl implements ResourceService {
 	@Autowired
 	private DeviceRepository deviceRepository;
 
-	public ResponseObject createDevices(Devices device) {
+	public ResponseEntity<ResponseObject> createDevices(Devices device) {
 		ResponseObject response = new ResponseObject();
-		System.out.println(device);
+
+		if (deviceRepository.findById(device.getName()).isPresent()) {
+			response.setMsg("Device " + device.getName() + " already exists");
+			return new ResponseEntity<ResponseObject> (response, HttpStatus.BAD_REQUEST);
+		}
 		if (device.getType().equals(DeviceType.COMPUTER.getValue())
 				|| device.getType().equals(DeviceType.REPEATER.getValue())) {
 			deviceRepository.save(device);
 			response.setMsg("Successfully added " + device.getName());
-			return response;
+			return new ResponseEntity<ResponseObject> (response, HttpStatus.OK);
 		}
 		response.setMsg("type " + device.getType() + " is not supported");
-		return response;
+		return new ResponseEntity<ResponseObject> (response, HttpStatus.BAD_REQUEST);
 	}
 
 }

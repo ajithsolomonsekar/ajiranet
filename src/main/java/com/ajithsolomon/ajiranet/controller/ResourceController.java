@@ -3,6 +3,7 @@ package com.ajithsolomon.ajiranet.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,16 +21,11 @@ public class ResourceController {
 	@Autowired
 	ResourceService resourceService;
 
-	/*@PostMapping(path = "", consumes = "application/json", produces = "application/json")
-	public ResponseEntity<String> createDevices(@RequestBody Device device) {
-		System.out.println("In controller");
-		return new ResponseEntity<String>(			
-				"msg : " + resourceService.createDevices(device), HttpStatus.OK);
-	}*/
-	
-	@PostMapping(path = "", consumes = "application/json", produces = "application/json")
-	public ResponseObject createDevices(@RequestBody Devices device) {
-		System.out.println("In controller");
+	@PostMapping(path = "")
+	public ResponseEntity<ResponseObject> createDevices(@RequestBody @Nullable Devices device) {
+		if (device == null) {
+			return new ResponseEntity<ResponseObject>(new ResponseObject("Invalid Command."), HttpStatus.BAD_REQUEST);
+		}
 		return resourceService.createDevices(device);
 	}
 
