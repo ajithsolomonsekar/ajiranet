@@ -1,9 +1,15 @@
 package com.ajithsolomon.ajiranet.controller;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,8 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ajithsolomon.ajiranet.ConnectionsRequest;
 import com.ajithsolomon.ajiranet.ResponseObject;
+import com.ajithsolomon.ajiranet.constants.AppConstants;
 import com.ajithsolomon.ajiranet.entity.Devices;
 import com.ajithsolomon.ajiranet.service.ResourceService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping("/ajiranet/process")
@@ -21,25 +31,51 @@ public class ResourceController {
 	@Autowired
 	ResourceService resourceService;
 
-	@PostMapping(path = "/devices")
-	public ResponseEntity<ResponseObject> createDevices(@RequestBody(required = false) Devices device) {
-		if (device == null) {
-			return new ResponseEntity<ResponseObject>(new ResponseObject("Invalid Command."), HttpStatus.BAD_REQUEST);
-		}
-		return resourceService.createDevices(device);
-	}
+	private static final Logger logger = LoggerFactory.getLogger(ResourceController.class);
 
-	@PostMapping(path = "/devices/{name}/strength")
-	public ResponseEntity<ResponseObject> modifyStrength(@PathVariable String name, @RequestBody Devices device) {
-		return resourceService.modifyStrength(name, device);
-	}
-	
-	@PostMapping(path = "/connections")
-	public ResponseEntity<ResponseObject> createConnections(@RequestBody(required = false) ConnectionsRequest conReq) {
-		if (conReq == null || conReq.getSource() == null || conReq.getTargets() == null) {
-			return new ResponseEntity<ResponseObject>(new ResponseObject("Invalid command syntax"), HttpStatus.BAD_REQUEST);
+	@PostMapping
+	public ResponseEntity<ResponseObject> create(@RequestBody(required = false) String request)
+			throws JsonMappingException, JsonProcessingException, UnsupportedEncodingException {
+		String[] requestArray = URLDecoder.decode(StringUtils.chop(request), StandardCharsets.UTF_8.name())
+				.split("\\n");
+		String[] commandArray = requestArray[0].split("\\s");
+		String command = commandArray[0];
+		String endPoint = commandArray[1];
+
+		if (requestArray.length > 2) {
+			String requestBody = requestArray[2];
+			if (command.equals(AppConstants.COMMAND_CREATE.getValue())) {
+				if (endPoint.equals(AppConstants.ENDPOINT_001.getValue())) {
+					Devices device = new ObjectMapper().readValue(requestBody, Devices.class);
+					logger.info("Creating new " + device.getType() + " with name " + device.getName());
+					return resourceService.createDevices(device);
+				} else if (endPoint.equals(AppConstants.ENDPOINT_002.getValue())) {
+					ConnectionsRequest conReq = new ObjectMapper().readValue(requestBody, ConnectionsRequest.class);
+					if (conReq == null || conReq.getSource() == null || conReq.getTargets() == null) {
+						return new ResponseEntity<ResponseObject>(new ResponseObject(AppConstants.ERR_001.getValue()),
+								HttpStatus.BAD_REQUEST);
+					}
+					return resourceService.createConnection(conReq);
+				}
+			} else if (command.equals(AppConstants.COMMAND_MODIFY.getValue())) {
+				Devices device = new ObjectMapper().readValue(requestBody, Devices.class);
+				String[] endPointArray = endPoint.split("/");
+				return resourceService.modifyStrength(endPointArray[2], device);
+			}
 		}
-		return resourceService.createConnection(conReq);
+
+		else if (command.equals(AppConstants.COMMAND_CREATE.getValue())
+				&& endPoint.equals(AppConstants.ENDPOINT_001.getValue())) {
+			logger.warn(AppConstants.ERR_002.getValue());
+			return new ResponseEntity<ResponseObject>(new ResponseObject(AppConstants.ERR_002.getValue()),
+					HttpStatus.BAD_REQUEST);
+		} else if (command.equals(AppConstants.COMMAND_CREATE.getValue())
+				&& endPoint.equals(AppConstants.ENDPOINT_002.getValue())) {
+			logger.warn(AppConstants.ERR_001.getValue());
+			return new ResponseEntity<ResponseObject>(new ResponseObject(AppConstants.ERR_001.getValue()),
+					HttpStatus.BAD_REQUEST);
+		}
+		return null;
 	}
 
 }

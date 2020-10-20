@@ -3,8 +3,12 @@ package com.ajithsolomon.ajiranet;
 import java.util.List;
 
 public class ConnectionsRequest {
+
 	private String source;
 	private List<String> targets;
+
+	public ConnectionsRequest() {
+	}
 
 	public ConnectionsRequest(String source, List<String> targets) {
 		super();
