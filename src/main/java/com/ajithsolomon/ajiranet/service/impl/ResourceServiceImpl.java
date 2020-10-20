@@ -1,5 +1,7 @@
 package com.ajithsolomon.ajiranet.service.impl;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,9 +9,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.ajithsolomon.ajiranet.ConnectionsRequest;
 import com.ajithsolomon.ajiranet.ResponseObject;
 import com.ajithsolomon.ajiranet.constants.DeviceType;
+import com.ajithsolomon.ajiranet.entity.Connections;
 import com.ajithsolomon.ajiranet.entity.Devices;
+import com.ajithsolomon.ajiranet.repository.ConnectionRepository;
 import com.ajithsolomon.ajiranet.repository.DeviceRepository;
 import com.ajithsolomon.ajiranet.service.ResourceService;
 
@@ -18,6 +23,9 @@ public class ResourceServiceImpl implements ResourceService {
 
 	@Autowired
 	private DeviceRepository deviceRepository;
+
+	@Autowired
+	private ConnectionRepository connectionRepository;
 
 	public ResponseEntity<ResponseObject> createDevices(Devices device) {
 		ResponseObject response = new ResponseObject();
@@ -63,6 +71,43 @@ public class ResourceServiceImpl implements ResourceService {
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public ResponseEntity<ResponseObject> createConnection(ConnectionsRequest conReq) {
+		ResponseObject response = new ResponseObject();
+
+		List<Connections> conList = connectionRepository.findAll();
+		for (Connections connection : conList) {
+			for (String target : conReq.getTargets()) {
+				if (connection.getSource().equals(conReq.getSource()) && connection.getTargets().equals(target)) {
+					response.setMsg("Devices are already connected");
+					return new ResponseEntity<ResponseObject>(response, HttpStatus.BAD_REQUEST);
+				}
+			}
+		}
+
+		Optional<Devices> device = deviceRepository.findById(conReq.getSource());
+		if (device.isPresent()) {
+
+			List<Connections> connectionList = new ArrayList<>();
+			for (String target : conReq.getTargets()) {
+				if (conReq.getSource() == target) {
+					response.setMsg("Cannot connect device to itself");
+					return new ResponseEntity<ResponseObject>(response, HttpStatus.BAD_REQUEST);
+				}
+				Connections connection = new Connections(conReq.getSource(), target);
+				connectionList.add(connection);
+			}
+			device.get().setConnections(connectionList);
+			deviceRepository.save(device.get());
+
+			response.setMsg("Successfully connected");
+			return new ResponseEntity<ResponseObject>(response, HttpStatus.OK);
+		}
+		response.setMsg("Node '" + conReq.getSource() + "' not found");
+		return new ResponseEntity<ResponseObject>(response, HttpStatus.BAD_REQUEST);
+
 	}
 
 }

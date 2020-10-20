@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ajithsolomon.ajiranet.ConnectionsRequest;
 import com.ajithsolomon.ajiranet.ResponseObject;
 import com.ajithsolomon.ajiranet.entity.Devices;
 import com.ajithsolomon.ajiranet.service.ResourceService;
@@ -31,6 +32,14 @@ public class ResourceController {
 	@PostMapping(path = "/devices/{name}/strength")
 	public ResponseEntity<ResponseObject> modifyStrength(@PathVariable String name, @RequestBody Devices device) {
 		return resourceService.modifyStrength(name, device);
+	}
+	
+	@PostMapping(path = "/connections")
+	public ResponseEntity<ResponseObject> createConnections(@RequestBody(required = false) ConnectionsRequest conReq) {
+		if (conReq == null || conReq.getSource() == null || conReq.getTargets() == null) {
+			return new ResponseEntity<ResponseObject>(new ResponseObject("Invalid command syntax"), HttpStatus.BAD_REQUEST);
+		}
+		return resourceService.createConnection(conReq);
 	}
 
 }
