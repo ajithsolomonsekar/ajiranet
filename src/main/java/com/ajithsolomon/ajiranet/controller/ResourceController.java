@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ajithsolomon.ajiranet.ConnectionsRequest;
-import com.ajithsolomon.ajiranet.ResponseObject;
 import com.ajithsolomon.ajiranet.constants.AppConstants;
+import com.ajithsolomon.ajiranet.dto.ConnectionsRequest;
+import com.ajithsolomon.ajiranet.dto.ResponseObject;
 import com.ajithsolomon.ajiranet.entity.Devices;
 import com.ajithsolomon.ajiranet.service.ResourceService;
 import com.fasterxml.jackson.core.JsonProcessingException;

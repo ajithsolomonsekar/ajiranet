@@ -11,10 +11,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import com.ajithsolomon.ajiranet.ConnectionsRequest;
-import com.ajithsolomon.ajiranet.ResponseObject;
 import com.ajithsolomon.ajiranet.constants.AppConstants;
 import com.ajithsolomon.ajiranet.constants.DeviceType;
+import com.ajithsolomon.ajiranet.dto.ConnectionsRequest;
+import com.ajithsolomon.ajiranet.dto.ResponseObject;
 import com.ajithsolomon.ajiranet.entity.Connections;
 import com.ajithsolomon.ajiranet.entity.Devices;
 import com.ajithsolomon.ajiranet.repository.ConnectionRepository;

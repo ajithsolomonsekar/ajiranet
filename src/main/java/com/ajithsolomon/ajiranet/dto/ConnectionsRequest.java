@@ -1,4 +1,4 @@
-package com.ajithsolomon.ajiranet;
+package com.ajithsolomon.ajiranet.dto;
 
 import java.util.List;
 
