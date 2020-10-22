@@ -35,18 +35,20 @@ public class ResourceServiceImpl implements ResourceService {
 
 	public ResponseEntity<ResponseObject> createDevices(Devices device) {
 		ResponseObject response = new ResponseObject();
-
-		if (device.getType().equals(DeviceType.COMPUTER.getValue())
-				|| device.getType().equals(DeviceType.REPEATER.getValue())) {
-			if (deviceRepository.findById(device.getName()).isPresent()) {
-				logger.info(AppConstants.INFO_001.getValue());
-				response.setMsg("Device '" + device.getName() + "' already exists");
-				return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+		if (device.getType().equals(DeviceType.REPEATER.getValue())
+				|| device.getType().equals(DeviceType.COMPUTER.getValue())) {
+			if (!deviceRepository.findById(device.getName()).isPresent()) {
+				if (device.getType().equals(DeviceType.COMPUTER.getValue())) {
+					device.setValue(5);
+				}
+				deviceRepository.save(device);
+				logger.info("New " + device + " created");
+				response.setMsg(AppConstants.INFO_002.getValue() + device.getName());
+				return new ResponseEntity<>(response, HttpStatus.OK);
 			}
-			deviceRepository.save(device);
-			logger.info("New " + device + " created");
-			response.setMsg(AppConstants.INFO_002.getValue() + device.getName());
-			return new ResponseEntity<>(response, HttpStatus.OK);
+			logger.info(AppConstants.INFO_001.getValue());
+			response.setMsg("Device '" + device.getName() + "' already exists");
+			return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 		} else {
 			response.setMsg("type '" + device.getType() + "' is not supported");
 			return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
@@ -55,33 +57,28 @@ public class ResourceServiceImpl implements ResourceService {
 
 	public ResponseEntity<ResponseObject> modifyStrength(Devices dev) {
 		ResponseObject response = new ResponseObject();
-		Optional<Devices> device = deviceRepository.findById(dev.getName());
-		if (device.isPresent()) {
-			if (isNumeric(dev.getValue())) {
-				deviceRepository.save(new Devices(dev.getName(), device.get().getType(), dev.getValue()));
-				logger.info(AppConstants.INFO_003.getValue());
-				response.setMsg(AppConstants.INFO_003.getValue());
-				return new ResponseEntity<>(response, HttpStatus.OK);
+		Optional<Devices> deviceFromDb = deviceRepository.findById(dev.getName());
+		if (deviceFromDb.isPresent() && deviceFromDb != null) {
+			Devices device = deviceFromDb.get();
+			if (!device.getType().equals(DeviceType.REPEATER.getValue())) {
+				if (dev.getValue() > 0) {
+					device.setValue(dev.getValue());
+					deviceRepository.save(device);
+					logger.info(AppConstants.INFO_003.getValue());
+					response.setMsg(AppConstants.INFO_003.getValue());
+					return new ResponseEntity<>(response, HttpStatus.OK);
+				} else {
+					response.setMsg(AppConstants.ERR_003.getValue());
+					logger.warn(AppConstants.ERR_003.getValue());
+					return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+				}
 			}
-			response.setMsg(AppConstants.ERR_003.getValue());
-			logger.warn(AppConstants.ERR_003.getValue());
+			response.setMsg(AppConstants.ERR_007.getValue());
 			return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 		}
 		logger.error(AppConstants.ERR_004.getValue());
 		response.setMsg(AppConstants.ERR_004.getValue());
 		return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-	}
-
-	private static boolean isNumeric(String strength) {
-		if (strength == null) {
-			return false;
-		}
-		try {
-			Integer.parseInt(strength);
-		} catch (NumberFormatException nfe) {
-			return false;
-		}
-		return true;
 	}
 
 	@Override
@@ -127,7 +124,7 @@ public class ResourceServiceImpl implements ResourceService {
 		response.setMsg(AppConstants.INFO_005.getValue());
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
-	
+
 	public ResponseEntity<ResponseObject> fetchAllDevices() {
 		ResponseObject response = new ResponseObject();
 		List<Devices> devices = deviceRepository.findAll();
@@ -136,7 +133,10 @@ public class ResourceServiceImpl implements ResourceService {
 		}
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
-	
-	
-	
+
+	public ResponseEntity<ResponseObject> fetchRoutes(String source, String target) {
+		return null;
+
+	}
+
 }

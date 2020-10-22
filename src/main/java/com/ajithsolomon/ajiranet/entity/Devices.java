@@ -12,6 +12,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 @Entity
 @Table(name = "TBL_DEVICE")
@@ -19,16 +21,16 @@ public class Devices implements Serializable {
 
 	private static final long serialVersionUID = 6675046415021647129L;
 
-	@Column(name = "device_type", nullable = false)
+	@Column(name = "device_type")
 	private String type;
 
 	@Id
 	@Column(name = "device_name", nullable = false)
 	private String name;
-
-	@JsonIgnore
-	@Column(name = "value")
-	private String value = "5";
+	
+	@JsonProperty(access = Access.WRITE_ONLY)
+	@Column(name = "strength")
+	private int value;
 
 	@JsonIgnore
 	@OneToMany(cascade = CascadeType.ALL)
@@ -38,14 +40,20 @@ public class Devices implements Serializable {
 	public Devices() {
 	}
 
-	public Devices(String name, String type, String value) {
+	public Devices(String name, String type, int value) {
 		super();
 		this.name = name;
 		this.type = type;
 		this.value = value;
 	}
 
-	public Devices(String name, String type, String value, List<Connections> connections) {
+	public Devices(String name, int value) {
+		super();
+		this.name = name;
+		this.value = value;
+	}
+
+	public Devices(String name, String type, int value, List<Connections> connections) {
 		super();
 		this.name = name;
 		this.type = type;
@@ -68,12 +76,12 @@ public class Devices implements Serializable {
 	public void setType(String type) {
 		this.type = type;
 	}
-
-	public String getValue() {
+	
+	public int getValue() {
 		return value;
 	}
 
-	public void setValue(String value) {
+	public void setValue(int value) {
 		this.value = value;
 	}
 
@@ -92,7 +100,7 @@ public class Devices implements Serializable {
 		result = prime * result + ((connections == null) ? 0 : connections.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
-		result = prime * result + ((value == null) ? 0 : value.hashCode());
+		result = prime * result + value;
 		return result;
 	}
 
@@ -120,17 +128,14 @@ public class Devices implements Serializable {
 				return false;
 		} else if (!type.equals(other.type))
 			return false;
-		if (value == null) {
-			if (other.value != null)
-				return false;
-		} else if (!value.equals(other.value))
+		if (value != other.value)
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "Devices [name=" + name + ", type=" + type + ", value=" + value + ", connections=" + connections + "]";
+		return "Devices [type=" + type + ", name=" + name + ", value=" + value + ", connections=" + connections + "]";
 	}
 
 }

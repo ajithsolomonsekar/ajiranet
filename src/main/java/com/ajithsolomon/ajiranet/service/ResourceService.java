@@ -16,4 +16,6 @@ public interface ResourceService {
 	
 	ResponseEntity<ResponseObject> fetchAllDevices();
 	
+	ResponseEntity<ResponseObject> fetchRoutes(String source, String target);
+	
 }
