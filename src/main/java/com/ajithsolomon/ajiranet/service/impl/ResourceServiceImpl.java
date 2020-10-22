@@ -135,7 +135,9 @@ public class ResourceServiceImpl implements ResourceService {
 	}
 
 	public ResponseEntity<ResponseObject> fetchRoutes(String source, String target) {
-		return null;
+		ResponseObject response = new ResponseObject();
+		response.setMsg(source + "-> " + target);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 
 	}
 

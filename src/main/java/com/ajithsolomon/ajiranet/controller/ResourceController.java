@@ -35,13 +35,12 @@ public class ResourceController {
 
 	@PostMapping
 	public ResponseEntity<ResponseObject> create(@RequestBody(required = false) String request)
-			throws JsonMappingException, JsonProcessingException, UnsupportedEncodingException {
+			throws UnsupportedEncodingException, JsonMappingException, JsonProcessingException {
 		String[] requestArray = URLDecoder.decode(StringUtils.chop(request), StandardCharsets.UTF_8.name())
 				.split("\\n");
 		String[] commandArray = requestArray[0].split("\\s");
 		String command = commandArray[0];
 		String endPoint = commandArray[1];
-
 		if (requestArray.length > 2) {
 			String requestBody = requestArray[2];
 			if (command.equals(AppConstants.COMMAND_CREATE.getValue())) {
@@ -61,7 +60,7 @@ public class ResourceController {
 				Devices device = new ObjectMapper().readValue(requestBody, Devices.class);
 				String[] endPointArray = endPoint.split("/");
 				device.setName(endPointArray[2]);
-				
+
 				return resourceService.modifyStrength(device);
 			}
 		} else if (requestArray.length == 1) {
