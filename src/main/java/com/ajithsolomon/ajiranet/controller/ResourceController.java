@@ -52,7 +52,7 @@ public class ResourceController {
 				} else if (endPoint.equals(AppConstants.ENDPOINT_002.getValue())) {
 					ConnectionsRequest conReq = new ObjectMapper().readValue(requestBody, ConnectionsRequest.class);
 					if (conReq == null || conReq.getSource() == null || conReq.getTargets() == null) {
-						return new ResponseEntity<ResponseObject>(new ResponseObject(AppConstants.ERR_001.getValue()),
+						return new ResponseEntity<>(new ResponseObject(AppConstants.ERR_001.getValue()),
 								HttpStatus.BAD_REQUEST);
 					}
 					return resourceService.createConnection(conReq);
@@ -60,19 +60,24 @@ public class ResourceController {
 			} else if (command.equals(AppConstants.COMMAND_MODIFY.getValue())) {
 				Devices device = new ObjectMapper().readValue(requestBody, Devices.class);
 				String[] endPointArray = endPoint.split("/");
-				return resourceService.modifyStrength(endPointArray[2], device);
+				device.setName(endPointArray[2]);
+				return resourceService.modifyStrength(device);
 			}
+		} else if (command.equals(AppConstants.COMMAND_FETCH.getValue())
+				&& endPoint.equals(AppConstants.ENDPOINT_001.getValue())) {
+			logger.info(AppConstants.INFO_006.getValue());
+			return resourceService.fetchAllDevices();
 		}
 
 		else if (command.equals(AppConstants.COMMAND_CREATE.getValue())
 				&& endPoint.equals(AppConstants.ENDPOINT_001.getValue())) {
 			logger.warn(AppConstants.ERR_002.getValue());
-			return new ResponseEntity<ResponseObject>(new ResponseObject(AppConstants.ERR_002.getValue()),
+			return new ResponseEntity<>(new ResponseObject(AppConstants.ERR_002.getValue()),
 					HttpStatus.BAD_REQUEST);
 		} else if (command.equals(AppConstants.COMMAND_CREATE.getValue())
 				&& endPoint.equals(AppConstants.ENDPOINT_002.getValue())) {
 			logger.warn(AppConstants.ERR_001.getValue());
-			return new ResponseEntity<ResponseObject>(new ResponseObject(AppConstants.ERR_001.getValue()),
+			return new ResponseEntity<>(new ResponseObject(AppConstants.ERR_001.getValue()),
 					HttpStatus.BAD_REQUEST);
 		}
 		return null;

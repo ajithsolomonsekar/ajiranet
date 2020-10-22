@@ -1,5 +1,7 @@
 package com.ajithsolomon.ajiranet.entity;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -9,7 +11,9 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "TBL_CONNECTION")
-public class Connections {
+public class Connections implements Serializable {
+
+	private static final long serialVersionUID = -164119849854334935L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

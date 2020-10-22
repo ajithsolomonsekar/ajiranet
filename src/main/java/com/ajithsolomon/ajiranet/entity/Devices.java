@@ -1,5 +1,6 @@
 package com.ajithsolomon.ajiranet.entity;
 
+import java.io.Serializable;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -10,20 +11,26 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "TBL_DEVICE")
-public class Devices {
+public class Devices implements Serializable {
+
+	private static final long serialVersionUID = 6675046415021647129L;
+
+	@Column(name = "device_type", nullable = false)
+	private String type;
 
 	@Id
 	@Column(name = "device_name", nullable = false)
 	private String name;
 
-	@Column(name = "device_type", nullable = false)
-	private String type;
-
+	@JsonIgnore
 	@Column(name = "value")
-	private String value;
+	private String value = "5";
 
+	@JsonIgnore
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinColumn(name = "source", referencedColumnName = "device_name")
 	List<Connections> connections;

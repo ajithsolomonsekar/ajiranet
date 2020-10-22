@@ -1,28 +1,33 @@
 package com.ajithsolomon.ajiranet.dto;
 
+import java.io.Serializable;
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 
+import com.ajithsolomon.ajiranet.entity.Devices;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @Component
-public class ResponseObject {
+public class ResponseObject implements Serializable {
+
+	private static final long serialVersionUID = 30755559399521379L;
 
 	@JsonInclude(Include.NON_NULL)
 	private String msg;
 
 	@JsonInclude(Include.NON_NULL)
-	private String value;
+	private List<Devices> devices;
 
 	public ResponseObject(String msg) {
 		super();
 		this.msg = msg;
 	}
 
-	public ResponseObject(String msg, String value) {
+	public ResponseObject(List<Devices> devices) {
 		super();
-		this.msg = msg;
-		this.value = value;
+		this.devices = devices;
 	}
 
 	public ResponseObject() {
@@ -36,17 +41,17 @@ public class ResponseObject {
 		this.msg = msg;
 	}
 
-	public String getValue() {
-		return value;
+	public List<Devices> getDevices() {
+		return devices;
 	}
 
-	public void setValue(String value) {
-		this.value = value;
+	public void setDevices(List<Devices> devices) {
+		this.devices = devices;
 	}
 
 	@Override
 	public String toString() {
-		return "[msg=" + msg + ", value=" + value + "]";
+		return "ResponseObject [msg=" + msg + "]";
 	}
 
 }

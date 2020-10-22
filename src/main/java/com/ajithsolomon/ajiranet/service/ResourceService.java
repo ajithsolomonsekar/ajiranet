@@ -10,8 +10,10 @@ public interface ResourceService {
 
 	ResponseEntity<ResponseObject> createDevices(Devices device);
 	
-	ResponseEntity<ResponseObject> modifyStrength(String name, Devices device);
+	ResponseEntity<ResponseObject> modifyStrength(Devices device);
 	
 	ResponseEntity<ResponseObject> createConnection(ConnectionsRequest conReq);
+	
+	ResponseEntity<ResponseObject> fetchAllDevices();
 	
 }

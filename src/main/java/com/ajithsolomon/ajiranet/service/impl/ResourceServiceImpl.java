@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import com.ajithsolomon.ajiranet.constants.AppConstants;
 import com.ajithsolomon.ajiranet.constants.DeviceType;
@@ -40,35 +41,35 @@ public class ResourceServiceImpl implements ResourceService {
 			if (deviceRepository.findById(device.getName()).isPresent()) {
 				logger.info(AppConstants.INFO_001.getValue());
 				response.setMsg("Device '" + device.getName() + "' already exists");
-				return new ResponseEntity<ResponseObject>(response, HttpStatus.BAD_REQUEST);
+				return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 			}
 			deviceRepository.save(device);
 			logger.info("New " + device + " created");
 			response.setMsg(AppConstants.INFO_002.getValue() + device.getName());
-			return new ResponseEntity<ResponseObject>(response, HttpStatus.OK);
+			return new ResponseEntity<>(response, HttpStatus.OK);
 		} else {
 			response.setMsg("type '" + device.getType() + "' is not supported");
-			return new ResponseEntity<ResponseObject>(response, HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 		}
 	}
 
-	public ResponseEntity<ResponseObject> modifyStrength(String name, Devices dev) {
+	public ResponseEntity<ResponseObject> modifyStrength(Devices dev) {
 		ResponseObject response = new ResponseObject();
-		Optional<Devices> device = deviceRepository.findById(name);
+		Optional<Devices> device = deviceRepository.findById(dev.getName());
 		if (device.isPresent()) {
 			if (isNumeric(dev.getValue())) {
-				deviceRepository.save(new Devices(name, device.get().getType(), dev.getValue()));
+				deviceRepository.save(new Devices(dev.getName(), device.get().getType(), dev.getValue()));
 				logger.info(AppConstants.INFO_003.getValue());
 				response.setMsg(AppConstants.INFO_003.getValue());
-				return new ResponseEntity<ResponseObject>(response, HttpStatus.OK);
+				return new ResponseEntity<>(response, HttpStatus.OK);
 			}
 			response.setMsg(AppConstants.ERR_003.getValue());
 			logger.warn(AppConstants.ERR_003.getValue());
-			return new ResponseEntity<ResponseObject>(response, HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 		}
 		logger.error(AppConstants.ERR_004.getValue());
 		response.setMsg(AppConstants.ERR_004.getValue());
-		return new ResponseEntity<ResponseObject>(response, HttpStatus.NOT_FOUND);
+		return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
 	}
 
 	private static boolean isNumeric(String strength) {
@@ -93,7 +94,7 @@ public class ResourceServiceImpl implements ResourceService {
 				if (connection.getSource().equals(conReq.getSource()) && connection.getTargets().equals(target)) {
 					logger.warn(AppConstants.INFO_004.getValue());
 					response.setMsg(AppConstants.INFO_004.getValue());
-					return new ResponseEntity<ResponseObject>(response, HttpStatus.BAD_REQUEST);
+					return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 				}
 			}
 		}
@@ -105,25 +106,37 @@ public class ResourceServiceImpl implements ResourceService {
 				if (conReq.getSource() == target) {
 					logger.warn(AppConstants.ERR_005.getValue());
 					response.setMsg(AppConstants.ERR_005.getValue());
-					return new ResponseEntity<ResponseObject>(response, HttpStatus.BAD_REQUEST);
+					return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 				}
 				if (deviceRepository.findById(target).isPresent()) {
 					Connections connection = new Connections(conReq.getSource(), target);
 					connectionList.add(connection);
 				} else {
 					response.setMsg("Node '" + target + "' not found");
-					return new ResponseEntity<ResponseObject>(response, HttpStatus.BAD_REQUEST);
+					return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 				}
 			} else {
 				logger.warn("Node '" + conReq.getSource() + "' not found");
 				response.setMsg("Node '" + conReq.getSource() + "' not found");
-				return new ResponseEntity<ResponseObject>(response, HttpStatus.BAD_REQUEST);
+				return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 			}
 		}
 		sourcedevice.get().setConnections(connectionList);
 		deviceRepository.save(sourcedevice.get());
 		logger.info(AppConstants.INFO_005.getValue());
 		response.setMsg(AppConstants.INFO_005.getValue());
-		return new ResponseEntity<ResponseObject>(response, HttpStatus.OK);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
+	
+	public ResponseEntity<ResponseObject> fetchAllDevices() {
+		ResponseObject response = new ResponseObject();
+		List<Devices> devices = deviceRepository.findAll();
+		if (!CollectionUtils.isEmpty(devices)) {
+			response.setDevices(devices);
+		}
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+	
+	
+	
 }
