@@ -4,7 +4,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +20,6 @@ import com.ajithsolomon.ajiranet.dto.ResponseObject;
 import com.ajithsolomon.ajiranet.entity.Devices;
 import com.ajithsolomon.ajiranet.service.ResourceService;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
@@ -35,9 +33,8 @@ public class ResourceController {
 
 	@PostMapping
 	public ResponseEntity<ResponseObject> create(@RequestBody(required = false) String request)
-			throws UnsupportedEncodingException, JsonMappingException, JsonProcessingException {
-		String[] requestArray = URLDecoder.decode(StringUtils.chop(request), StandardCharsets.UTF_8.name())
-				.split("\\n");
+			throws UnsupportedEncodingException, JsonProcessingException {
+		String[] requestArray = URLDecoder.decode(request, StandardCharsets.UTF_8.toString()).split("\\n");
 		String[] commandArray = requestArray[0].split("\\s");
 		String command = commandArray[0];
 		String endPoint = commandArray[1];
@@ -57,33 +54,46 @@ public class ResourceController {
 					return resourceService.createConnection(conReq);
 				}
 			} else if (command.equals(AppConstants.COMMAND_MODIFY.getValue())) {
-				Devices device = new ObjectMapper().readValue(requestBody, Devices.class);
-				String[] endPointArray = endPoint.split("/");
-				device.setName(endPointArray[2]);
-
-				return resourceService.modifyStrength(device);
+				try {
+					Devices device = new ObjectMapper().readValue(requestBody, Devices.class);
+					String[] endPointArray = endPoint.split("/");
+					device.setName(endPointArray[2]);
+					return resourceService.modifyStrength(device);
+				} catch (Exception e) {
+					logger.warn(AppConstants.ERR_003.getValue());
+					return new ResponseEntity<>(new ResponseObject(AppConstants.ERR_003.getValue()),
+							HttpStatus.BAD_REQUEST);
+				}
 			}
 		} else if (requestArray.length == 1) {
-			if (command.equals(AppConstants.COMMAND_FETCH.getValue())
-					&& endPoint.equals(AppConstants.ENDPOINT_001.getValue())) {
-				logger.info(AppConstants.INFO_006.getValue());
-				return resourceService.fetchAllDevices();
-			} else if (command.equals(AppConstants.COMMAND_FETCH.getValue())) {
-				String[] endPointArray = endPoint.split("=&");
-				return resourceService.fetchRoutes(endPointArray[1], endPointArray[3]);
-			} else if (command.equals(AppConstants.COMMAND_CREATE.getValue())
-					&& endPoint.equals(AppConstants.ENDPOINT_001.getValue())) {
-				logger.warn(AppConstants.ERR_002.getValue());
-				return new ResponseEntity<>(new ResponseObject(AppConstants.ERR_002.getValue()),
-						HttpStatus.BAD_REQUEST);
-			} else if (command.equals(AppConstants.COMMAND_CREATE.getValue())
-					&& endPoint.equals(AppConstants.ENDPOINT_002.getValue())) {
-				logger.warn(AppConstants.ERR_001.getValue());
-				return new ResponseEntity<>(new ResponseObject(AppConstants.ERR_001.getValue()),
-						HttpStatus.BAD_REQUEST);
+			if (command.equals(AppConstants.COMMAND_FETCH.getValue())) {
+				if (endPoint.equals(AppConstants.ENDPOINT_003.getValue())) {
+					logger.info(AppConstants.INFO_006.getValue());
+					return resourceService.fetchAllDevices();
+				} else {
+					String[] endPointArray = endPoint.split("[=&]");
+					try {
+						String source = endPointArray[1];
+						String target = endPointArray[3];
+						return resourceService.fetchRoutes(source, target);
+					} catch (ArrayIndexOutOfBoundsException ex) {
+						logger.warn(AppConstants.ERR_008.getValue());
+						return new ResponseEntity<>(new ResponseObject(AppConstants.ERR_008.getValue()),
+								HttpStatus.BAD_REQUEST);
+					}
+				}
+			} else if (command.equals(AppConstants.COMMAND_CREATE.getValue())) {
+				if (endPoint.equals(AppConstants.ENDPOINT_001.getValue())) {
+					logger.warn(AppConstants.ERR_002.getValue());
+					return new ResponseEntity<>(new ResponseObject(AppConstants.ERR_002.getValue()),
+							HttpStatus.BAD_REQUEST);
+				} else if (endPoint.equals(AppConstants.ENDPOINT_002.getValue())) {
+					logger.warn(AppConstants.ERR_001.getValue());
+					return new ResponseEntity<>(new ResponseObject(AppConstants.ERR_001.getValue()),
+							HttpStatus.BAD_REQUEST);
+				}
 			}
 		}
 		return new ResponseEntity<>(new ResponseObject(AppConstants.ERR_006.getValue()), HttpStatus.BAD_REQUEST);
 	}
-
 }

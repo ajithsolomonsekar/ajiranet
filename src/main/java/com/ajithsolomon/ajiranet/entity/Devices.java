@@ -27,7 +27,7 @@ public class Devices implements Serializable {
 	@Id
 	@Column(name = "device_name", nullable = false)
 	private String name;
-	
+
 	@JsonProperty(access = Access.WRITE_ONLY)
 	@Column(name = "strength")
 	private int value;
@@ -45,6 +45,11 @@ public class Devices implements Serializable {
 		this.name = name;
 		this.type = type;
 		this.value = value;
+	}
+
+	public Devices(String name) {
+		super();
+		this.name = name;
 	}
 
 	public Devices(String name, int value) {
@@ -76,7 +81,7 @@ public class Devices implements Serializable {
 	public void setType(String type) {
 		this.type = type;
 	}
-	
+
 	public int getValue() {
 		return value;
 	}

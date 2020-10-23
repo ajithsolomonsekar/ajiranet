@@ -84,7 +84,6 @@ public class ResourceServiceImpl implements ResourceService {
 	@Override
 	public ResponseEntity<ResponseObject> createConnection(ConnectionsRequest conReq) {
 		ResponseObject response = new ResponseObject();
-
 		List<Connections> conList = connectionRepository.findAll();
 		for (Connections connection : conList) {
 			for (String target : conReq.getTargets()) {
@@ -97,10 +96,9 @@ public class ResourceServiceImpl implements ResourceService {
 		}
 		Optional<Devices> sourcedevice = deviceRepository.findById(conReq.getSource());
 		List<Connections> connectionList = new ArrayList<>();
-
 		for (String target : conReq.getTargets()) {
 			if (sourcedevice.isPresent()) {
-				if (conReq.getSource() == target) {
+				if (conReq.getSource().equals(target)) {
 					logger.warn(AppConstants.ERR_005.getValue());
 					response.setMsg(AppConstants.ERR_005.getValue());
 					return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
@@ -136,9 +134,35 @@ public class ResourceServiceImpl implements ResourceService {
 
 	public ResponseEntity<ResponseObject> fetchRoutes(String source, String target) {
 		ResponseObject response = new ResponseObject();
-		response.setMsg(source + "-> " + target);
-		return new ResponseEntity<>(response, HttpStatus.OK);
-
+		List<Devices> devices = deviceRepository.findAll();
+		System.out.println(devices);
+		Optional<Devices> sourceDevice = deviceRepository.findById(source);
+		Optional<Devices> targetDevice = deviceRepository.findById(target);
+		if (sourceDevice.isPresent()) {
+			if (targetDevice.isPresent()) {
+				if (source.equals(target)) {
+					response.setMsg("Route is " + source + "->" + target);
+					return new ResponseEntity<>(response, HttpStatus.OK);
+				}
+				if (!sourceDevice.get().getType().equals(DeviceType.COMPUTER.getValue())
+						&& !targetDevice.get().getType().equals(DeviceType.COMPUTER.getValue())) {
+					logger.warn(AppConstants.ERR_009.getValue());
+					response.setMsg(AppConstants.ERR_009.getValue());
+					return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+				}
+				
+				
+				
+				
+				
+				response.setMsg("Under Construction");
+				// response.setMsg("Route is " + source + "->" + target);
+				return new ResponseEntity<>(response, HttpStatus.OK);
+			}
+			response.setMsg("Node '" + target + "' not found");
+			return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+		}
+		response.setMsg("Node '" + source + "' not found");
+		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 	}
-
 }
