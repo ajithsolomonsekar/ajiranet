@@ -17,7 +17,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 @Entity
 @Table(name = "TBL_DEVICE")
-public class Devices implements Serializable {
+public class Device implements Serializable {
 
 	private static final long serialVersionUID = 6675046415021647129L;
 
@@ -35,30 +35,30 @@ public class Devices implements Serializable {
 	@JsonIgnore
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinColumn(name = "source", referencedColumnName = "device_name")
-	List<Connections> connections;
+	List<Connection> connections;
 
-	public Devices() {
+	public Device() {
 	}
 
-	public Devices(String name, String type, int value) {
+	public Device(String name, String type, int value) {
 		super();
 		this.name = name;
 		this.type = type;
 		this.value = value;
 	}
 
-	public Devices(String name) {
+	public Device(String name) {
 		super();
 		this.name = name;
 	}
 
-	public Devices(String name, int value) {
+	public Device(String name, int value) {
 		super();
 		this.name = name;
 		this.value = value;
 	}
 
-	public Devices(String name, String type, int value, List<Connections> connections) {
+	public Device(String name, String type, int value, List<Connection> connections) {
 		super();
 		this.name = name;
 		this.type = type;
@@ -90,11 +90,11 @@ public class Devices implements Serializable {
 		this.value = value;
 	}
 
-	public List<Connections> getConnections() {
+	public List<Connection> getConnections() {
 		return connections;
 	}
 
-	public void setConnections(List<Connections> connections) {
+	public void setConnections(List<Connection> connections) {
 		this.connections = connections;
 	}
 
@@ -117,7 +117,7 @@ public class Devices implements Serializable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Devices other = (Devices) obj;
+		Device other = (Device) obj;
 		if (connections == null) {
 			if (other.connections != null)
 				return false;

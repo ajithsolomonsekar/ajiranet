@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import com.ajithsolomon.ajiranet.entity.Devices;
+import com.ajithsolomon.ajiranet.entity.Device;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
@@ -18,14 +18,14 @@ public class ResponseObject implements Serializable {
 	private String msg;
 
 	@JsonInclude(Include.NON_NULL)
-	private List<Devices> devices;
+	private List<Device> devices;
 
 	public ResponseObject(String msg) {
 		super();
 		this.msg = msg;
 	}
 
-	public ResponseObject(List<Devices> devices) {
+	public ResponseObject(List<Device> devices) {
 		super();
 		this.devices = devices;
 	}
@@ -41,11 +41,11 @@ public class ResponseObject implements Serializable {
 		this.msg = msg;
 	}
 
-	public List<Devices> getDevices() {
+	public List<Device> getDevices() {
 		return devices;
 	}
 
-	public void setDevices(List<Devices> devices) {
+	public void setDevices(List<Device> devices) {
 		this.devices = devices;
 	}
 

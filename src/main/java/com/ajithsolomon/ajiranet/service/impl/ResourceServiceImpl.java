@@ -1,8 +1,11 @@
 package com.ajithsolomon.ajiranet.service.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,10 +17,13 @@ import org.springframework.util.CollectionUtils;
 
 import com.ajithsolomon.ajiranet.constants.AppConstants;
 import com.ajithsolomon.ajiranet.constants.DeviceType;
-import com.ajithsolomon.ajiranet.dto.ConnectionsRequest;
+import com.ajithsolomon.ajiranet.dto.ConnectionDTO;
+import com.ajithsolomon.ajiranet.dto.ConnectionRequest;
+import com.ajithsolomon.ajiranet.dto.DeviceDTO;
+import com.ajithsolomon.ajiranet.dto.Graph;
 import com.ajithsolomon.ajiranet.dto.ResponseObject;
-import com.ajithsolomon.ajiranet.entity.Connections;
-import com.ajithsolomon.ajiranet.entity.Devices;
+import com.ajithsolomon.ajiranet.entity.Connection;
+import com.ajithsolomon.ajiranet.entity.Device;
 import com.ajithsolomon.ajiranet.repository.ConnectionRepository;
 import com.ajithsolomon.ajiranet.repository.DeviceRepository;
 import com.ajithsolomon.ajiranet.service.ResourceService;
@@ -33,7 +39,7 @@ public class ResourceServiceImpl implements ResourceService {
 
 	private static final Logger logger = LoggerFactory.getLogger(ResourceServiceImpl.class);
 
-	public ResponseEntity<ResponseObject> createDevices(Devices device) {
+	public ResponseEntity<ResponseObject> createDevices(Device device) {
 		ResponseObject response = new ResponseObject();
 		if (device.getType().equals(DeviceType.REPEATER.getValue())
 				|| device.getType().equals(DeviceType.COMPUTER.getValue())) {
@@ -55,11 +61,11 @@ public class ResourceServiceImpl implements ResourceService {
 		}
 	}
 
-	public ResponseEntity<ResponseObject> modifyStrength(Devices dev) {
+	public ResponseEntity<ResponseObject> modifyStrength(Device dev) {
 		ResponseObject response = new ResponseObject();
-		Optional<Devices> deviceFromDb = deviceRepository.findById(dev.getName());
+		Optional<Device> deviceFromDb = deviceRepository.findById(dev.getName());
 		if (deviceFromDb.isPresent() && deviceFromDb != null) {
-			Devices device = deviceFromDb.get();
+			Device device = deviceFromDb.get();
 			if (!device.getType().equals(DeviceType.REPEATER.getValue())) {
 				if (dev.getValue() > 0) {
 					device.setValue(dev.getValue());
@@ -68,8 +74,8 @@ public class ResourceServiceImpl implements ResourceService {
 					response.setMsg(AppConstants.INFO_003.getValue());
 					return new ResponseEntity<>(response, HttpStatus.OK);
 				} else {
-					response.setMsg(AppConstants.ERR_003.getValue());
-					logger.warn(AppConstants.ERR_003.getValue());
+					response.setMsg(AppConstants.ERR_010.getValue());
+					logger.warn(AppConstants.ERR_010.getValue());
 					return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 				}
 			}
@@ -82,10 +88,10 @@ public class ResourceServiceImpl implements ResourceService {
 	}
 
 	@Override
-	public ResponseEntity<ResponseObject> createConnection(ConnectionsRequest conReq) {
+	public ResponseEntity<ResponseObject> createConnection(ConnectionRequest conReq) {
 		ResponseObject response = new ResponseObject();
-		List<Connections> conList = connectionRepository.findAll();
-		for (Connections connection : conList) {
+		List<Connection> conList = connectionRepository.findAll();
+		for (Connection connection : conList) {
 			for (String target : conReq.getTargets()) {
 				if (connection.getSource().equals(conReq.getSource()) && connection.getTargets().equals(target)) {
 					logger.warn(AppConstants.INFO_004.getValue());
@@ -94,8 +100,8 @@ public class ResourceServiceImpl implements ResourceService {
 				}
 			}
 		}
-		Optional<Devices> sourcedevice = deviceRepository.findById(conReq.getSource());
-		List<Connections> connectionList = new ArrayList<>();
+		Optional<Device> sourcedevice = deviceRepository.findById(conReq.getSource());
+		List<Connection> connectionList = new ArrayList<>();
 		for (String target : conReq.getTargets()) {
 			if (sourcedevice.isPresent()) {
 				if (conReq.getSource().equals(target)) {
@@ -104,8 +110,7 @@ public class ResourceServiceImpl implements ResourceService {
 					return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 				}
 				if (deviceRepository.findById(target).isPresent()) {
-					Connections connection = new Connections(conReq.getSource(), target);
-					connectionList.add(connection);
+					connectionList.add(new Connection(conReq.getSource(), target));
 				} else {
 					response.setMsg("Node '" + target + "' not found");
 					return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
@@ -125,7 +130,7 @@ public class ResourceServiceImpl implements ResourceService {
 
 	public ResponseEntity<ResponseObject> fetchAllDevices() {
 		ResponseObject response = new ResponseObject();
-		List<Devices> devices = deviceRepository.findAll();
+		List<Device> devices = deviceRepository.findAll();
 		if (!CollectionUtils.isEmpty(devices)) {
 			response.setDevices(devices);
 		}
@@ -134,30 +139,26 @@ public class ResourceServiceImpl implements ResourceService {
 
 	public ResponseEntity<ResponseObject> fetchRoutes(String source, String target) {
 		ResponseObject response = new ResponseObject();
-		List<Devices> devices = deviceRepository.findAll();
-		System.out.println(devices);
-		Optional<Devices> sourceDevice = deviceRepository.findById(source);
-		Optional<Devices> targetDevice = deviceRepository.findById(target);
+		Optional<Device> sourceDevice = deviceRepository.findById(source);
+		Optional<Device> targetDevice = deviceRepository.findById(target);
 		if (sourceDevice.isPresent()) {
 			if (targetDevice.isPresent()) {
 				if (source.equals(target)) {
 					response.setMsg("Route is " + source + "->" + target);
 					return new ResponseEntity<>(response, HttpStatus.OK);
 				}
-				if (!sourceDevice.get().getType().equals(DeviceType.COMPUTER.getValue())
-						&& !targetDevice.get().getType().equals(DeviceType.COMPUTER.getValue())) {
+				if (!(sourceDevice.get().getType().equals(DeviceType.COMPUTER.getValue())
+						&& targetDevice.get().getType().equals(DeviceType.COMPUTER.getValue()))) {
 					logger.warn(AppConstants.ERR_009.getValue());
 					response.setMsg(AppConstants.ERR_009.getValue());
 					return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 				}
-				
-				
-				
-				
-				
-				response.setMsg("Under Construction");
-				// response.setMsg("Route is " + source + "->" + target);
-				return new ResponseEntity<>(response, HttpStatus.OK);
+				DeviceDTO sourceDTO = new DeviceDTO(sourceDevice.get().getName(), sourceDevice.get().getType(),
+						sourceDevice.get().getValue());
+				DeviceDTO targetDTO = new DeviceDTO(targetDevice.get().getName(), targetDevice.get().getType(),
+						targetDevice.get().getValue());
+
+				return new ResponseEntity<>(getPath(sourceDTO, targetDTO), HttpStatus.OK);
 			}
 			response.setMsg("Node '" + target + "' not found");
 			return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
@@ -165,4 +166,75 @@ public class ResourceServiceImpl implements ResourceService {
 		response.setMsg("Node '" + source + "' not found");
 		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 	}
+
+	private ResponseObject getPath(DeviceDTO source, DeviceDTO target) {
+		ResponseObject response = new ResponseObject();
+		List<Connection> connections = connectionRepository.findAll();
+		List<ConnectionDTO> connectionsList = connections.stream().map(c -> toConnectionDTO(c))
+				.collect(Collectors.toList());
+		PathFinderService algo = new PathFinderService(new Graph(connectionsList));
+		algo.execute(source.getName());
+		LinkedList<String> resultPath = algo.getPath(target.getName());
+		if (resultPath != null) {
+			System.out.println(resultPath);
+			List<Device> filteredDevices = deviceRepository.findAll().stream()
+					.filter(d -> d.getType().equals(DeviceType.REPEATER.getValue())).collect(Collectors.toList());
+			Boolean containsRepeater = false;
+			for (Device d : filteredDevices) {
+				if (resultPath.contains(d.getName())) {
+					containsRepeater = true;
+				}
+			}
+			if (!containsRepeater) {
+				if (source.getStrength() >= resultPath.size() - 1) {
+					Collections.reverse(resultPath);
+					StringBuilder builder = new StringBuilder("Route is "+resultPath.get(0));
+					for (int i = 1; i < resultPath.size(); i++) {
+						builder.append("->");
+						builder.append(resultPath.get(i));
+					}
+					response.setMsg(builder.toString());
+					return response;
+				} else {
+					System.out.println(resultPath);
+					System.out.println("Couldn't reach Node " + source.getName());
+				}
+			} else {
+				int strength = 0;
+				List<Device> devices = deviceRepository.findAll();
+				for (String r : resultPath) {
+					Optional<Device> d = devices.stream().filter(dev -> dev.getName().equals(r)).findFirst();
+					if (d.get().getType().equals(DeviceType.COMPUTER.getValue())) {
+						strength++;
+					} else if (d.get().getType().equals(DeviceType.REPEATER.getValue())) {
+						strength = (strength / 2) + 1;
+					}
+				}
+				if (source.getStrength() >= strength) {
+					Collections.reverse(resultPath);
+					StringBuilder builder = new StringBuilder("Route is "+resultPath.get(0));
+					for (int i = 1; i < resultPath.size(); i++) {
+						builder.append("->");
+						builder.append(resultPath.get(i));
+					}
+					response.setMsg(builder.toString());
+					return response;
+				} else {
+
+					logger.error("Couldn't reach Node " + source.getName());
+					response.setMsg("Couldn't reach Node " + source.getName());
+					return response;
+				}
+			}
+
+		}
+		logger.error("Route not found");
+		response.setMsg("Route not found");
+		return response;
+	}
+
+	private ConnectionDTO toConnectionDTO(Connection c) {
+		return new ConnectionDTO(c.getId(), c.getSource(), c.getTargets());
+	}
+
 }

@@ -11,7 +11,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "TBL_CONNECTION")
-public class Connections implements Serializable {
+public class Connection implements Serializable {
 
 	private static final long serialVersionUID = -164119849854334935L;
 
@@ -26,13 +26,17 @@ public class Connections implements Serializable {
 	@Column(name = "targets")
 	private String targets;
 
-	public Connections() {
+	public Connection() {
 	}
 
-	public Connections(String source, String targets) {
+	public Connection(String source, String targets) {
 		super();
 		this.source = source;
 		this.targets = targets;
+	}
+
+	public Long getId() {
+		return id;
 	}
 
 	public String getSource() {
@@ -69,7 +73,7 @@ public class Connections implements Serializable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Connections other = (Connections) obj;
+		Connection other = (Connection) obj;
 		if (id == null) {
 			if (other.id != null)
 				return false;

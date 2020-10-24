@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ajithsolomon.ajiranet.constants.AppConstants;
-import com.ajithsolomon.ajiranet.dto.ConnectionsRequest;
+import com.ajithsolomon.ajiranet.dto.ConnectionRequest;
 import com.ajithsolomon.ajiranet.dto.ResponseObject;
-import com.ajithsolomon.ajiranet.entity.Devices;
+import com.ajithsolomon.ajiranet.entity.Device;
 import com.ajithsolomon.ajiranet.service.ResourceService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,11 +42,11 @@ public class ResourceController {
 			String requestBody = requestArray[2];
 			if (command.equals(AppConstants.COMMAND_CREATE.getValue())) {
 				if (endPoint.equals(AppConstants.ENDPOINT_001.getValue())) {
-					Devices device = new ObjectMapper().readValue(requestBody, Devices.class);
+					Device device = new ObjectMapper().readValue(requestBody, Device.class);
 					logger.info("Creating new " + device.getType() + " with name " + device.getName());
 					return resourceService.createDevices(device);
 				} else if (endPoint.equals(AppConstants.ENDPOINT_002.getValue())) {
-					ConnectionsRequest conReq = new ObjectMapper().readValue(requestBody, ConnectionsRequest.class);
+					ConnectionRequest conReq = new ObjectMapper().readValue(requestBody, ConnectionRequest.class);
 					if (conReq == null || conReq.getSource() == null || conReq.getTargets() == null) {
 						return new ResponseEntity<>(new ResponseObject(AppConstants.ERR_001.getValue()),
 								HttpStatus.BAD_REQUEST);
@@ -55,7 +55,7 @@ public class ResourceController {
 				}
 			} else if (command.equals(AppConstants.COMMAND_MODIFY.getValue())) {
 				try {
-					Devices device = new ObjectMapper().readValue(requestBody, Devices.class);
+					Device device = new ObjectMapper().readValue(requestBody, Device.class);
 					String[] endPointArray = endPoint.split("/");
 					device.setName(endPointArray[2]);
 					return resourceService.modifyStrength(device);

@@ -2,15 +2,15 @@ package com.ajithsolomon.ajiranet.dto;
 
 import java.util.List;
 
-public class ConnectionsRequest {
+public class ConnectionRequest {
 
 	private String source;
 	private List<String> targets;
 
-	public ConnectionsRequest() {
+	public ConnectionRequest() {
 	}
 
-	public ConnectionsRequest(String source, List<String> targets) {
+	public ConnectionRequest(String source, List<String> targets) {
 		super();
 		this.source = source;
 		this.targets = targets;
