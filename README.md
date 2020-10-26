@@ -22,7 +22,7 @@ There are several ways to run a Spring Boot application on your local machine. O
 * 	Choose the Spring Boot Application file (search for @SpringBootApplication)
 * 	Right Click on the file and Run as Java Application
 
-* 	URL to access application UI: **http://localhost:8080/ajiranet/process**
+* 	URL to access application: **http://localhost:8080/ajiranet/process**
 
 ### Running the application with Maven
 
@@ -47,7 +47,7 @@ Fill the login form as follows and click on Connect:
 * 	Saved Settings: **Generic H2 (Embedded)**
 * 	Setting Name: **Generic H2 (Embedded)**
 * 	Driver class: **org.h2.Driver**
-* 	JDBC URL: **jdbc:h2:mem:sbat;MODE=MySQL**
+* 	JDBC URL: **jdbc:h2:mem:testdb**
 * 	User Name: **sa**
 * 	Password:
 
@@ -57,5 +57,18 @@ Fill the login form as follows and click on Connect:
 
 ## Testing API
 ### Testing with cURL
+
+Enabled HTTPS in localhost by generating a self signed certificate of PKCS12 type and added in *main/resource* but cURL is not accepting self signed certificate, hence currently HTTPS is disabled in the Spring Boot application.
+
+### URLs
+
+|                  URL                   | Method |     Request Body       	     |   
+|----------------------------------------|--------|-----------------------------------
+|`http://localhost:8080/ajiranet/process`| POST   | CREATE /devices      	     |
+|`http://localhost:8080/ajiranet/process`| POST   | CREATE /connections		     |
+|`http://localhost:8080/ajiranet/process`| POST   | MODIFY /devices/A1/strength      |
+|`http://localhost:8080/ajiranet/process`| POST   | FETCH /devices 	   	     |
+|`http://localhost:8080/ajiranet/process`| POST   | FETCH /info-routes?from=A1&to=A5 |
+
 
 
