@@ -22,6 +22,11 @@ import com.ajithsolomon.ajiranet.service.ResourceService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+/**
+ * 
+ * @author AjithSolomonSekar
+ *
+ */
 @RestController
 @RequestMapping("/ajiranet/process")
 public class ResourceController {
@@ -30,7 +35,14 @@ public class ResourceController {
 	ResourceService resourceService;
 
 	private static final Logger logger = LoggerFactory.getLogger(ResourceController.class);
-
+	
+	/**
+	 * 
+	 * @param request
+	 * @return
+	 * @throws UnsupportedEncodingException
+	 * @throws JsonProcessingException
+	 */
 	@PostMapping
 	public ResponseEntity<ResponseObject> create(@RequestBody(required = false) String request)
 			throws UnsupportedEncodingException, JsonProcessingException {

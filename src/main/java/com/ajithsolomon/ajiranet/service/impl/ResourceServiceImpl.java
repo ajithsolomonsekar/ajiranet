@@ -1,6 +1,5 @@
 package com.ajithsolomon.ajiranet.service.impl;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,6 +27,11 @@ import com.ajithsolomon.ajiranet.repository.ConnectionRepository;
 import com.ajithsolomon.ajiranet.repository.DeviceRepository;
 import com.ajithsolomon.ajiranet.service.ResourceService;
 
+/**
+ * 
+ * @author AjithSolomonSekar
+ *
+ */
 @Service
 public class ResourceServiceImpl implements ResourceService {
 
@@ -39,6 +43,7 @@ public class ResourceServiceImpl implements ResourceService {
 
 	private static final Logger logger = LoggerFactory.getLogger(ResourceServiceImpl.class);
 
+	@Override
 	public ResponseEntity<ResponseObject> createDevices(Device device) {
 		ResponseObject response = new ResponseObject();
 		if (device.getType().equals(DeviceType.REPEATER.getValue())
@@ -61,6 +66,7 @@ public class ResourceServiceImpl implements ResourceService {
 		}
 	}
 
+	@Override
 	public ResponseEntity<ResponseObject> modifyStrength(Device dev) {
 		ResponseObject response = new ResponseObject();
 		Optional<Device> deviceFromDb = deviceRepository.findById(dev.getName());
@@ -122,6 +128,7 @@ public class ResourceServiceImpl implements ResourceService {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
+	@Override
 	public ResponseEntity<ResponseObject> fetchAllDevices() {
 		ResponseObject response = new ResponseObject();
 		List<Device> devices = deviceRepository.findAll();
@@ -131,6 +138,7 @@ public class ResourceServiceImpl implements ResourceService {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
+	@Override
 	public ResponseEntity<ResponseObject> fetchRoutes(String source, String target) {
 		ResponseObject response = new ResponseObject();
 		Optional<Device> sourceDevice = deviceRepository.findById(source);
@@ -159,6 +167,12 @@ public class ResourceServiceImpl implements ResourceService {
 		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 	}
 
+	/**
+	 * 
+	 * @param source
+	 * @param target
+	 * @return ResponseObject
+	 */
 	private ResponseObject getPath(DeviceDTO source, DeviceDTO target) {
 		ResponseObject response = new ResponseObject();
 		List<Connection> connections = connectionRepository.findAll();
