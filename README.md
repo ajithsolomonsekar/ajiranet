@@ -55,6 +55,7 @@ Fill the login form as follows and click on Connect:
 
 <img src="images\h2-console-main-view.PNG"/>
 
-## Copyright
+## Testing API
+### Testing with cURL
 
-Released under the Apache License 2.0. See the [LICENSE](https://github.com/codecentric/springboot-sample-app/blob/master/LICENSE) file.
+
