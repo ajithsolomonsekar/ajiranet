@@ -48,12 +48,12 @@ public class ResourceServiceImpl implements ResourceService {
 					device.setValue(5);
 				}
 				deviceRepository.save(device);
-				logger.info("New " + device + " created");
 				response.setMsg(AppConstants.INFO_002.getValue() + device.getName());
+				logger.info(response.getMsg());
 				return new ResponseEntity<>(response, HttpStatus.OK);
 			}
-			logger.info(AppConstants.INFO_001.getValue());
 			response.setMsg("Device '" + device.getName() + "' already exists");
+			logger.info(response.getMsg());
 			return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 		} else {
 			response.setMsg("type '" + device.getType() + "' is not supported");
@@ -70,20 +70,21 @@ public class ResourceServiceImpl implements ResourceService {
 				if (dev.getValue() > 0) {
 					device.setValue(dev.getValue());
 					deviceRepository.save(device);
-					logger.info(AppConstants.INFO_003.getValue());
 					response.setMsg(AppConstants.INFO_003.getValue());
+					logger.info(response.getMsg());
 					return new ResponseEntity<>(response, HttpStatus.OK);
 				} else {
 					response.setMsg(AppConstants.ERR_010.getValue());
-					logger.warn(AppConstants.ERR_010.getValue());
+					logger.warn(response.getMsg());
 					return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 				}
 			}
 			response.setMsg(AppConstants.ERR_007.getValue());
+			logger.warn(response.getMsg());
 			return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 		}
-		logger.error(AppConstants.ERR_004.getValue());
 		response.setMsg(AppConstants.ERR_004.getValue());
+		logger.error(response.getMsg());
 		return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
 	}
 
@@ -94,8 +95,8 @@ public class ResourceServiceImpl implements ResourceService {
 		for (Connection connection : conList) {
 			for (String target : conReq.getTargets()) {
 				if (connection.getSource().equals(conReq.getSource()) && connection.getTargets().equals(target)) {
-					logger.warn(AppConstants.INFO_004.getValue());
 					response.setMsg(AppConstants.INFO_004.getValue());
+					logger.warn(response.getMsg());
 					return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 				}
 			}
@@ -105,8 +106,8 @@ public class ResourceServiceImpl implements ResourceService {
 		for (String target : conReq.getTargets()) {
 			if (sourcedevice.isPresent()) {
 				if (conReq.getSource().equals(target)) {
-					logger.warn(AppConstants.ERR_005.getValue());
 					response.setMsg(AppConstants.ERR_005.getValue());
+					logger.warn(response.getMsg());
 					return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 				}
 				if (deviceRepository.findById(target).isPresent()) {
@@ -116,15 +117,15 @@ public class ResourceServiceImpl implements ResourceService {
 					return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 				}
 			} else {
-				logger.warn("Node '" + conReq.getSource() + "' not found");
 				response.setMsg("Node '" + conReq.getSource() + "' not found");
+				logger.warn(response.getMsg());
 				return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 			}
 		}
 		sourcedevice.get().setConnections(connectionList);
 		deviceRepository.save(sourcedevice.get());
-		logger.info(AppConstants.INFO_005.getValue());
 		response.setMsg(AppConstants.INFO_005.getValue());
+		logger.info(response.getMsg());
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
@@ -145,20 +146,17 @@ public class ResourceServiceImpl implements ResourceService {
 			if (targetDevice.isPresent()) {
 				if (source.equals(target)) {
 					response.setMsg("Route is " + source + "->" + target);
+					logger.info(response.getMsg());
 					return new ResponseEntity<>(response, HttpStatus.OK);
 				}
 				if (!(sourceDevice.get().getType().equals(DeviceType.COMPUTER.getValue())
 						&& targetDevice.get().getType().equals(DeviceType.COMPUTER.getValue()))) {
-					logger.warn(AppConstants.ERR_009.getValue());
 					response.setMsg(AppConstants.ERR_009.getValue());
+					logger.warn(response.getMsg());
 					return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 				}
-				DeviceDTO sourceDTO = new DeviceDTO(sourceDevice.get().getName(), sourceDevice.get().getType(),
-						sourceDevice.get().getValue());
-				DeviceDTO targetDTO = new DeviceDTO(targetDevice.get().getName(), targetDevice.get().getType(),
-						targetDevice.get().getValue());
 
-				return new ResponseEntity<>(getPath(sourceDTO, targetDTO), HttpStatus.OK);
+				return new ResponseEntity<>(getPath(toDeviceDTO(sourceDevice.get()), toDeviceDTO(targetDevice.get())), HttpStatus.OK);
 			}
 			response.setMsg("Node '" + target + "' not found");
 			return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
@@ -172,7 +170,7 @@ public class ResourceServiceImpl implements ResourceService {
 		List<Connection> connections = connectionRepository.findAll();
 		List<ConnectionDTO> connectionsList = connections.stream().map(c -> toConnectionDTO(c))
 				.collect(Collectors.toList());
-		PathFinderService algo = new PathFinderService(new Graph(connectionsList));
+		PathFinder algo = new PathFinder(new Graph(connectionsList));
 		algo.execute(source.getName());
 		LinkedList<String> resultPath = algo.getPath(target.getName());
 		if (resultPath != null) {
@@ -194,6 +192,7 @@ public class ResourceServiceImpl implements ResourceService {
 						builder.append(resultPath.get(i));
 					}
 					response.setMsg(builder.toString());
+					logger.info(response.getMsg());
 					return response;
 				} else {
 					System.out.println(resultPath);
@@ -220,19 +219,24 @@ public class ResourceServiceImpl implements ResourceService {
 					response.setMsg(builder.toString());
 					return response;
 				} else {
-
-					logger.error("Couldn't reach Node " + source.getName());
+					
 					response.setMsg("Couldn't reach Node " + source.getName());
+					logger.error(response.getMsg());
 					return response;
 				}
 			}
 
 		}
-		logger.error("Route not found");
+		
 		response.setMsg("Route not found");
+		logger.error(response.getMsg());
 		return response;
 	}
-
+	
+	private DeviceDTO toDeviceDTO(Device d) {
+		return new DeviceDTO(d.getName(), d.getType(), d.getValue());
+	}
+	
 	private ConnectionDTO toConnectionDTO(Connection c) {
 		return new ConnectionDTO(c.getId(), c.getSource(), c.getTargets());
 	}

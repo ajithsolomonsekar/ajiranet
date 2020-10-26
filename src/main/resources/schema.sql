@@ -12,3 +12,7 @@ CREATE TABLE TBL_CONNECTION (
   	targets VARCHAR(250) NOT NULL,
  	CONSTRAINT fk_source FOREIGN KEY (source) REFERENCES TBL_DEVICE(device_name)
 );
+
+
+
+

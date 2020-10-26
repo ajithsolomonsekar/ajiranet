@@ -11,7 +11,7 @@ import java.util.Set;
 import com.ajithsolomon.ajiranet.dto.ConnectionDTO;
 import com.ajithsolomon.ajiranet.dto.Graph;;
 
-public class PathFinderService {
+public class PathFinder {
 
 	//private final List<DeviceDTO> devices;
 	private final List<ConnectionDTO> connections;
@@ -20,7 +20,7 @@ public class PathFinderService {
 	private Map<String, String> predecessors;
 	private Map<String, Integer> distance;
 
-	public PathFinderService(Graph graph) {
+	public PathFinder(Graph graph) {
 		//this.devices = new ArrayList<DeviceDTO>(graph.getVertexes());
 		this.connections = new ArrayList<ConnectionDTO>(graph.getEdges());
 	}
