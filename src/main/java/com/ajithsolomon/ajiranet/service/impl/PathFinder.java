@@ -13,7 +13,6 @@ import com.ajithsolomon.ajiranet.dto.Graph;;
 
 public class PathFinder {
 
-	//private final List<DeviceDTO> devices;
 	private final List<ConnectionDTO> connections;
 	private Set<String> settledDevices;
 	private Set<String> unSettledDevices;
@@ -21,7 +20,6 @@ public class PathFinder {
 	private Map<String, Integer> distance;
 
 	public PathFinder(Graph graph) {
-		//this.devices = new ArrayList<DeviceDTO>(graph.getVertexes());
 		this.connections = new ArrayList<ConnectionDTO>(graph.getEdges());
 	}
 
@@ -101,8 +99,7 @@ public class PathFinder {
 			target = predecessors.get(target);
 			path.add(target);
 		}
-		// Put it into the correct order
-		//Collections.reverse(path);
+
 		return path;
 	}
 

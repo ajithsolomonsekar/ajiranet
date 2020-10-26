@@ -182,7 +182,6 @@ public class ResourceServiceImpl implements ResourceService {
 		algo.execute(source.getName());
 		LinkedList<String> resultPath = algo.getPath(target.getName());
 		if (resultPath != null) {
-			System.out.println(resultPath);
 			List<Device> filteredDevices = deviceRepository.findAll().stream()
 					.filter(d -> d.getType().equals(DeviceType.REPEATER.getValue())).collect(Collectors.toList());
 			Boolean containsRepeater = false;
